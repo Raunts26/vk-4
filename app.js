@@ -18,6 +18,9 @@
     this.currentRoute = null; // Hoian meeles, mis lehel olen
     this.interval = null;
 
+    //Hoian kõiki purke siin
+    this.jars = [];
+
     // Panen rakenduse tööle
     this.init();
     };
@@ -77,11 +80,26 @@
           //hash oli, käivitan routeChange function
           this.routeChange();
         }
+        // Saan kätte purgid localStoragest, kui on
+        if(localStorage.jars) {
+          //Võtan stringi ja teen tagasi objektideks
+          this.jars = JSON.parse(localStorage.jars);
+          //console.log('laadisin localStoragest massiiivi ' + this.jars.length);
+
+          //Tekitan loendi htmli
+          this.jars.forEach(function(jar) {
+
+            var new_jar = new Jar(jar.title, jar.ingredients, jar.date);
+
+            var li = new_jar.createHtmlElement();
+            document.querySelector('.list-of-jars').appendChild(li);
+          });
+        }
 
         //Hakka kuulama hiireklõpse
-        this.bindMouseEvents();
+        this.bindEvents();
       },
-      bindMouseEvents: function() {
+      bindEvents: function() {
         document.querySelector('.add-new-jar').addEventListener('click', this.addNewClick.bind(this));
       },
       addNewClick: function(event) {
@@ -92,9 +110,18 @@
         if(title === "" || ingredients === "" || date === "") {
           this.showAnswer(false);
         } else {
+
           this.showAnswer(true);
-          console.log(title + ' ' + ingredients + ' ' + date);
+          //console.log(title + ' ' + ingredients + ' ' + date);
           var new_jar = new Jar(title, ingredients, date);
+          //console.log(new_jar);
+
+          //Lisan massiivi purgi
+          this.jars.push(new_jar);
+          console.log(JSON.stringify(this.jars));
+          // JSONI stringina salvestan localStorage'sse
+          localStorage.setItem('jars', JSON.stringify(this.jars));
+
           var li = new_jar.createHtmlElement();
           document.querySelector('.list-of-jars').appendChild(li);
         }
@@ -171,7 +198,7 @@
 
         li.appendChild(content_span);
 
-        console.log(li);
+        //console.log(li);
 
         return li;
       }
